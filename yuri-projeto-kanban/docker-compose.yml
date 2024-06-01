@@ -1,0 +1,36 @@
+services:
+  # NestJS kanban API
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: ./kanban-api
+      # Build development stage from Dockerfile (construir apenas o ambiente de desenvolvimento)
+      target: development
+    volumes:
+      - ./kanban-api:/kanban/src/app
+      - /kanban/src/app/node_modules/
+    # Debug (npm run start:debug) Desenvolvimento (npm run start:dev)
+    command: npm run start:dev
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/db
+    ports:
+      - "3000:3000"
+    
+  postgres:
+    image: postgres:17.4
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+      - 35000:5432
+  
+  postgres_admin:
+    image: dpage/pgadmin4:9.2
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: password
+    ports:
+      - 5050:80
